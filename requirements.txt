@@ -9,3 +9,6 @@ torch
 torchvision
 scipy
 numpy
+transformers
+requests
+Pillow
