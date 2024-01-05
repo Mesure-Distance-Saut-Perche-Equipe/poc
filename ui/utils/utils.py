@@ -1,4 +1,13 @@
 def get_ellipse_coords(point: tuple[int, int]) -> tuple[int, int, int, int]:
+    """
+    Calculate the coordinates of a bounding box around a given point representing an ellipse
+
+    Parameters:
+    - point: Tuple containing (x, y) coordinates of the center of the ellipse
+
+    Returns:
+    Tuple (x_min, y_min, x_max, y_max) representing the bounding box coordinates
+    """
     center = point
     radius = 10
     return (
@@ -10,6 +19,15 @@ def get_ellipse_coords(point: tuple[int, int]) -> tuple[int, int, int, int]:
 
 
 def draw_distance_line(draw, point, corner, distance):
+    """
+    Draw a line between a given point and a corner and display the distance value
+
+    Parameters:
+    - draw: ImageDraw object for drawing on an image
+    - point: Tuple containing (x, y) coordinates of the starting point of the line
+    - corner: Tuple containing (x, y) coordinates of the ending point (corner) of the line
+    - distance: Numeric value to be displayed near the line
+    """
     # Unpack point and corner tuples
     x1, y1 = point
     x2, y2 = corner

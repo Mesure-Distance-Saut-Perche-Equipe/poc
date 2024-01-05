@@ -19,8 +19,10 @@ def main():
     st.title('Pole Vault Distance Measurement 🏋️‍')
     st.subheader('Welcome to the project dedicated to the measuring distance to bar for pole vault')
 
-    # Use the random key when creating the file uploader
+    # Get file from user
     file = st.file_uploader("Choose a file", type=["png", "jpg", "jpeg"])
+
+    # File was uploaded
     if file is not None:
         st.title("Here is the image you've uploaded")
         image = Image.open(file)
@@ -34,18 +36,21 @@ def main():
         coords = get_ellipse_coords(point)
         draw.ellipse(coords, fill="red")
 
+        # Display the image with ability to get the location of click
         value = streamlit_image_coordinates(image, key="pil")
         st.markdown("**Click on the image** to select the point that represents the bar. It will be used to calculate "
                     "the distance.  \n"
                     "You can click **multiple** times to change the location of the point: the distance will be "
                     "recalculated automatically.")
 
+        # The point was selected
         if value is not None:
             point = value["x"], value["y"]
             if point != st.session_state["point"]:
                 st.session_state["point"] = point
                 st.rerun()
 
+            # Run image processing
             with st.spinner("Analysing..."):
                 threshold = st.session_state.threshold / 100
                 resulted_image, results = image_processor.detect_objects(
@@ -61,6 +66,7 @@ def main():
                 if len(results) == 0:
                     st.subheader("No objects were detected")
                 else:
+                    # Calculate the distance between the selected point and the closest rect corner
                     _max_score, _max_score_label, max_score_box = results[0]
                     distance, closest_corner = get_distance_between_point_and_box(value, max_score_box)
 
@@ -72,24 +78,23 @@ def main():
                     st.subheader("Processed image")
                     st.image(resulted_image, use_column_width=True, caption="Processed image with distance line")
 
-                    # Print information about the distances
+                    # Display information about the distances
                     st.subheader("Calculated distance")
                     st.markdown(f"Distance: **{distance}**")
 
-                    # Print information about the detection
+                    # Display information about the objects detection
                     st.subheader("Detected objects")
                     st.markdown(f"Only the object with the **maximum** score is used to calculate the distance.")
-
                     for _, (score, label, box) in enumerate(results):
                         st.markdown(f"**{label}** with confidence **{round(score.item(), 3)}** at location **{box}**")
 
+                    # Threshold info and modification
                     st.markdown(f"The threshold value is **{threshold}**.",
                                 help="The **threshold** is a confidence score used to filter out less reliable "
                                      "detections. Objects with confidence scores below the threshold may not be "
                                      "considered. Adjust the threshold to control the balance between sensitivity and "
                                      "precision."
                                 )
-
                     st.session_state.threshold = st.slider(label="Adjust threshold value", value=90, min_value=30, max_value=99)
 
 
