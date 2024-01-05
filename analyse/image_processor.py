@@ -8,7 +8,7 @@ class ImageProcessor:
         self.processor = DetrImageProcessor.from_pretrained(model_url, revision=revision)
         self.model = DetrForObjectDetection.from_pretrained(model_url, revision=revision)
 
-    def process(self, image, threshold=0.9):
+    def detect_objects(self, image, threshold=0.9, draw_most_score=False):
         if image.format == "PNG":
             image = image.convert("RGB")
 
@@ -18,17 +18,22 @@ class ImageProcessor:
         # convert outputs (bounding boxes and class logits) to COCO API
         target_sizes = torch.tensor([image.size[::-1]])
         results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=threshold)[0]
-        results = list(zip(results["scores"], results["labels"], results["boxes"]))
+        results = sorted(
+            list(zip(results["scores"], results["labels"], results["boxes"])),
+            key=lambda x: x[0],
+            reverse=True
+        )
 
         # Create a draw object
         draw = ImageDraw.Draw(image)
 
         for i, (score, label, box) in enumerate(results):
-            box = [round(coord, 2) for coord in box.tolist()]
             label_text = self.model.config.id2label[label.item()]
+            box = [round(coord, 2) for coord in box.tolist()]
 
             # Draw a rectangle around the detected object
-            draw.rectangle(box, outline="red", width=3)
+            if draw_most_score is True and i == 0:
+                draw.rectangle(box, outline="red", width=3)
 
             # Replace the label in results with the corresponding text
             results[i] = (score, label_text, box)
