@@ -7,4 +7,4 @@ ui = UI()
 # Init pages
 ui.setup_pages(show_title=False)
 
-st.info('Please choose the tab to start!', icon="ℹ️")
+st.info("Please choose the tab to start!", icon="ℹ️")

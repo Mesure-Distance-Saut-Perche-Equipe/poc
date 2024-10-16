@@ -5,8 +5,12 @@ from PIL import ImageDraw
 
 class ImageProcessor:
     def __init__(self, model_url="facebook/detr-resnet-50", revision="no_timm"):
-        self.processor = DetrImageProcessor.from_pretrained(model_url, revision=revision)
-        self.model = DetrForObjectDetection.from_pretrained(model_url, revision=revision)
+        self.processor = DetrImageProcessor.from_pretrained(
+            model_url, revision=revision
+        )
+        self.model = DetrForObjectDetection.from_pretrained(
+            model_url, revision=revision
+        )
 
     def detect_objects(self, image, threshold=0.9, draw_most_score=False):
         if image.format == "PNG":
@@ -17,11 +21,13 @@ class ImageProcessor:
 
         # convert outputs (bounding boxes and class logits) to COCO API
         target_sizes = torch.tensor([image.size[::-1]])
-        results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=threshold)[0]
+        results = self.processor.post_process_object_detection(
+            outputs, target_sizes=target_sizes, threshold=threshold
+        )[0]
         results = sorted(
             list(zip(results["scores"], results["labels"], results["boxes"])),
             key=lambda x: x[0],
-            reverse=True
+            reverse=True,
         )
 
         # Create a draw object

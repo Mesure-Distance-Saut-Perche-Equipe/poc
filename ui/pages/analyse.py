@@ -10,8 +10,10 @@ from ui.utils.utils import get_ellipse_coords, draw_distance_line
 def main():
     initialize_session_state()
 
-    st.title('Pole Vault Distance Measurement 🏋️‍')
-    st.subheader('Welcome to the project dedicated to measuring the distance to the bar for pole vault!')
+    st.title("Pole Vault Distance Measurement 🏋️‍")
+    st.subheader(
+        "Welcome to the project dedicated to measuring the distance to the bar for pole vault!"
+    )
 
     st.subheader("To get started, upload an image")
     selected_image = get_selected_image()
@@ -27,10 +29,12 @@ def main():
     if selected_image is not None:
         st.title("Here is the image you've uploaded")
         value = streamlit_image_coordinates(selected_image, key="pil")
-        st.markdown("**Click on the image** to select the point that represents the bar. It will be used to calculate "
-                    "the distance.  \n"
-                    "You can click **multiple** times to change the location of the point: the distance will be "
-                    "recalculated automatically.")
+        st.markdown(
+            "**Click on the image** to select the point that represents the bar. It will be used to calculate "
+            "the distance.  \n"
+            "You can click **multiple** times to change the location of the point: the distance will be "
+            "recalculated automatically."
+        )
 
         # The point was selected
         if value is not None:
@@ -97,9 +101,7 @@ def analyse(image, point, value):
     with st.spinner("Analysing..."):
         threshold = st.session_state.threshold / 100
         resulted_image, results = image_processor.detect_objects(
-            image=image,
-            draw_most_score=True,
-            threshold=threshold
+            image=image, draw_most_score=True, threshold=threshold
         )
 
         st.title("Here is the result of analyse")
@@ -107,25 +109,38 @@ def analyse(image, point, value):
             st.subheader("No objects were detected")
         else:
             _max_score, _max_score_label, max_score_box = results[0]
-            distance, closest_corner = get_distance_between_point_and_box(value, max_score_box)
+            distance, closest_corner = get_distance_between_point_and_box(
+                value, max_score_box
+            )
 
             draw = ImageDraw.Draw(resulted_image)
             draw_distance_line(draw, point, closest_corner, distance)
 
             st.subheader("Processed image")
-            st.image(resulted_image, use_column_width=True, caption="Processed image with distance line")
+            st.image(
+                resulted_image,
+                use_column_width=True,
+                caption="Processed image with distance line",
+            )
 
             st.subheader("Calculated distance")
             st.markdown(f"Distance: **{distance}**")
 
             st.subheader("Detected objects")
-            st.markdown(f"Only the object with the **maximum** score is used to calculate the distance.")
+            st.markdown(
+                f"Only the object with the **maximum** score is used to calculate the distance."
+            )
             for _, (score, label, box) in enumerate(results):
-                st.markdown(f"**{label}** with confidence **{round(score.item(), 3)}** at location **{box}**")
+                st.markdown(
+                    f"**{label}** with confidence **{round(score.item(), 3)}** at location **{box}**"
+                )
 
-            st.markdown(f"The threshold value is **{threshold}**.", help="...")  # Your existing help content
-            st.session_state.threshold = st.slider(label="Adjust threshold value", value=90, min_value=30,
-                                                   max_value=99)
+            st.markdown(
+                f"The threshold value is **{threshold}**.", help="..."
+            )  # Your existing help content
+            st.session_state.threshold = st.slider(
+                label="Adjust threshold value", value=90, min_value=30, max_value=99
+            )
 
 
 if __name__ == "__main__":
